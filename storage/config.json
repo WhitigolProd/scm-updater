@@ -1,0 +1,10 @@
+{
+    "cadDir": "path/to/cad",
+    "cadPort": 3000,
+    "cadAPI": 8080,
+    "nodeEnv": "development",
+    "color": "",
+    "autoOpen": false,
+    "autoStart": false,
+    "firstRun": false
+}

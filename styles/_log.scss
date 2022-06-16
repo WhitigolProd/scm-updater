@@ -1,0 +1,39 @@
+log {
+    position: absolute;
+    inset: 0;
+    z-index: 10000;
+    background-color: $logBG;
+    backdrop-filter: blur(5px);
+    overflow-y: scroll;
+    overscroll-behavior-y: contain;
+    scroll-snap-type: y proximity;
+    border-radius: $border;
+    padding: 15px;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    out {
+        color: white;
+        font-size: 15px;
+        font-family: 'Consolas', 'Courier New', monospace;
+        user-select: text;
+
+        &::before {
+            user-select: none;
+            color: rgba(255, 255, 255, 0.5);
+            content: 'LOG> ';
+        }
+
+        &:last-child {
+            scroll-snap-align: end;
+        }
+    }
+
+    #closeLog {
+        position: absolute;
+        top: 10px;
+        right: 0;
+    }
+}

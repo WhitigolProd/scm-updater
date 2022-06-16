@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="styles/index.css" />
+        <link rel="shortcut icon" href="img/icon.png" />
+        <link
+            href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
+        />
+        <title>SnailyCAD - Manager</title>
+    </head>
+    <body>
+        <!-- Set Background Color (In a DIV for rounded corners) -->
+        <div class="bg"></div>
+
+        <!-- Titlebar -->
+        <div class="titlebar">
+            <div class="title">
+                SnailyCAD Manager <span id="titleAlt"></span>
+            </div>
+            <div class="buttons">
+                <div class="btn" id="app-minimize">
+                    <span class="material-icons-outlined">remove</span>
+                </div>
+                <div class="btn" id="app-close">
+                    <span class="material-icons-outlined">close</span>
+                </div>
+            </div>
+        </div>
+        <!-- End Titlebar -->
+
+        <app>
+            <!-- Problem Report Button -->
+            <span class="reportProblem">
+                <span class="material-icons-outlined">help</span>
+                <span>Report Problem</span>
+            </span>
+
+            <!-- Requirements -->
+            <div class="requirements">
+                <h2>Checking System Requirements</h2>
+                <p>
+                    The manager is checking your system for required assets to
+                    run SnailyCAD
+                </p>
+                <button
+                    aria-busy="true"
+                    id="rqLoad"
+                    class="secondary"
+                    style="
+                        background-color: transparent;
+                        border-style: none;
+                        width: auto;
+                        font-size: 30px;
+                    "
+                ></button>
+            </div>
+            <!-- End Requirements -->
+
+            <!-- Wizard -->
+            <div class="wizard" style="display: none">
+                <div class="header">
+                    <h1>Setup Wizard</h1>
+                    <p data-info>Welcome to the SnailyCAD Setup Wizard!</p>
+                </div>
+
+                <step data-step="start">
+                    <div class="inner">
+                        <label for="installation"
+                            >How would you like to continue?</label
+                        >
+                        <select id="installation" required>
+                            <option value="install" selected>
+                                Install SnailyCAD
+                            </option>
+                            <option value="exist">
+                                Use Existing Installation
+                            </option>
+                        </select>
+                    </div>
+                    <div class="buttons">
+                        <span class="main-btn blue raise" data-btn="next">
+                            <span>Next</span>
+                            <span class="material-icons-outlined"
+                                >arrow_forward</span
+                            >
+                        </span>
+                    </div>
+                </step>
+                <!--  -->
+
+                <step data-step="install" style="display: none">
+                    <div class="inner">
+                        <label for="insdir">
+                            Input Installation Directory
+                            <span
+                                >(e.g.<code>C:/Users/Username/Documents</code>)<br />The
+                                <code>snaily-cadv4</code> folder will be added
+                                upon installation.
+                            </span>
+                            <input
+                                type="text"
+                                id="insdir"
+                                name="insdir"
+                                placeholder="Installation Directory"
+                                required
+                            />
+                            <span style="color: rgba(255, 166, 0, 0.75)"
+                                >Do NOT include
+                                <code
+                                    style="color: var(--code-color); opacity: 1"
+                                    >snaily-cadv4</code
+                                >
+                                inside the installation directory.</span
+                            >
+                        </label>
+                    </div>
+
+                    <div class="buttons">
+                        <span class="main-btn blue raise" data-btn="next">
+                            <span>Next</span>
+                            <span class="material-icons-outlined"
+                                >arrow_forward</span
+                            >
+                        </span>
+                    </div>
+                </step>
+
+                <!-- Install -->
+                <step data-step="ins" style="display: none">
+                    <div class="inner">
+                        <h2>Ready to install!</h2>
+                        <div id="insinfo">
+                            <span
+                                >Installation Directory:
+                                <code id="insDirDis"></code></span
+                            ><br />
+                            <span style="color: orange; font-weight: bolder"
+                                >If your installation directory is NOT in proper
+                                format, your installation will fail *WITHOUT A
+                                DISPLAYED ERROR*</span
+                            >
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <span class="main-btn success raise" data-btn="next">
+                            <span>Start Installation</span>
+                            <span class="material-icons-outlined"
+                                >download</span
+                            >
+                        </span>
+                    </div>
+                </step>
+                <!--  -->
+
+                <!-- Existing Installation -->
+                <step data-step="exist" style="display: none">
+                    <div class="inner">
+                        <label for="existdir">
+                            Input Existing Installation Directory
+                            <span
+                                >(e.g.<code>C:/Users/Username/Documents/snaily-cadv4</code>)
+                            </span>
+                            <input
+                                type="text"
+                                id="existdir"
+                                name="existdir"
+                                placeholder="Existing Installation Directory"
+                                required
+                            />
+                        </label>
+                    </div>
+
+                    <div class="buttons">
+                        <span class="main-btn blue raise" data-btn="next">
+                            <span>Next</span>
+                            <span class="material-icons-outlined"
+                                >arrow_forward</span
+                            >
+                        </span>
+                    </div>
+                </step>
+                <!--  -->
+            </div>
+            <!-- End Wizard -->
+
+            <!-- Main Display -->
+            <div class="main">
+                <span class="status">
+                    CAD Status:
+                    <span id="sc-status" data-status="offline"></span>
+                </span>
+                <div class="row">
+                    <span class="main-btn success raise" id="sc-start">
+                        <span class="material-icons-outlined">play_arrow</span>
+                        <span>Start SnailyCAD</span>
+                    </span>
+                    <span class="main-btn error raise" id="sc-stop">
+                        <span class="material-icons-outlined">stop</span>
+                        <span>Stop SnailyCAD</span>
+                    </span>
+                    <span class="main-btn blue raise" id="sc-update">
+                        <span class="material-icons-outlined">upgrade</span>
+                        <span>Update SnailyCAD</span>
+                    </span>
+                </div>
+                <div class="row">
+                    <span class="md-btn warn raise" id="sc-dir">
+                        <span class="material-icons-outlined">source</span>
+                        <span>CAD Directory</span>
+                    </span>
+                </div>
+                <div class="row">
+                    <span class="sm-btn lnk raise" id="mg-docs">
+                        <span class="material-icons-outlined">summarize</span>
+                        <span>Manager Docs</span>
+                    </span>
+                    <span class="sm-btn lnk raise" id="sc-gh">
+                        <span class="material-icons-outlined">code</span>
+                        <span>SnailyCAD Github</span>
+                    </span>
+                    <span class="sm-btn lnk raise" id="sc-doc">
+                        <span class="material-icons-outlined">description</span>
+                        <span>SnailyCAD Docs</span>
+                    </span>
+                </div>
+            </div>
+            <!-- End Main Display -->
+
+            <!-- Version Display -->
+            <div class="versions">
+                <div id="current">
+                    SnailyCAD Version: <span>Not Installed</span>
+                </div>
+                <div id="latest" style="display: none">
+                    Latest Release: <span>ERROR</span>
+                </div>
+            </div>
+            <!-- End Version Display -->
+
+            <!-- CMD View -->
+            <div class="cmd-container">
+                <div class="header">
+                    <div class="title"></div>
+                    <span id="clearCMD">Clear CMD</span>
+                </div>
+                <div class="cmd"></div>
+            </div>
+            <!-- End CMD View -->
+
+            <!-- Settings -->
+            <div class="sm-btn lnk raise settingsBtn" id="openSettings">
+                <span class="material-icons-outlined">settings</span>
+                <span>Settings</span>
+            </div>
+
+            <!-- Settings Display -->
+            <div class="settings-container" style="display: none">
+                <div class="sm-btn error raise settingsBtn" id="closeSettings">
+                    <span class="material-icons-outlined">close</span>
+                    <span>Close</span>
+                </div>
+                <div class="header">
+                    <h2>SnailyCAD Settings</h2>
+                    <span style="color: orange; margin-top: 10px"
+                        >Required Values must be updated before starting
+                        SnailyCAD!</span
+                    >
+                </div>
+
+                <div class="row">
+                    <div class="main-btn blue raise" id="editEnv">
+                        <span class="material-icons-outlined">edit</span>
+                        <span>Edit <code>.env</code> file</span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="main-btn error raise" id="editEnv">
+                        <span class="material-icons-outlined">close</span>
+                        <span>Delete SnailyCAD</span>
+                    </div>
+                </div>
+
+                <!-- <div class="md-btn blue raise" id="saveSettings">
+                    <span class="material-icons-outlined">save</span>
+                    <span>Save Settings</span>
+                </div> -->
+            </div>
+            <!-- End Settings Display -->
+            <!-- End Settings -->
+
+            <!-- Loading Screen -->
+            <load id="loadScreen" style="padding: 30px">
+                <h1>Loading</h1>
+                <progress id="loadProgress"></progress>
+                <script>
+                    document.getElementById(
+                        'loadProgress'
+                    ).indeterminate = true;
+                </script>
+                <span>SnailyCAD Manager is loading...</span>
+            </load>
+            <!--  -->
+
+            <update>
+                <h2>Update Available</h2>
+                <p>There's an update available for SnailyCAD Manager</p>
+
+                <div class="row">
+                    <div class="main-btn blue raise" id="appUpdate" disabled>
+                        <span class="material-icons-outlined">update</span>
+                        <span>Update Now</span>
+                    </div>
+
+                    <div class="main-btn warn raise" id="appNoUpdate" disabled>
+                        <span class="material-icons-outlined"
+                            >do_not_touch</span
+                        >
+                        <span>Not Now</span>
+                    </div>
+                </div>
+            </update>
+
+            <log style="display: none">
+                <div class="closeLog">
+                    <div class="sm-btn error raise" id="closeLog">
+                        <span class="material-icons-outlined">close</span>
+                        <span>Close</span>
+                    </div>
+                </div>
+            </log>
+        </app>
+
+        <scripts>
+            <script src="scripts/script.js"></script>
+            <script src="scripts/elements.js"></script>
+            <script src="scripts/functions/ipc.js"></script>
+            <script src="storage/StorageManager.js"></script>
+            <script src="scripts/functions/Wizard.js"></script>
+            <script src="scripts/VersionHandler.js"></script>
+            <script src="scripts/functions/cad/envHandler.js"></script>
+            <script src="scripts/functions/commandline.js"></script>
+            <script src="storage/SettingsManager.js"></script>
+            <script src="scripts/functions/functions.js"></script>
+
+            <!-- GITHUB VERSION CHECK -->
+            <script src="https://rawgit.com/hippich/bower-semver/master/semver.min.js"></script>
+        </scripts>
+    </body>
+</html>
