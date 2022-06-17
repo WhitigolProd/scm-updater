@@ -77,6 +77,7 @@ $(`#appUpdate`).on(`click`, () => {
     $(`update`).append(`<p aria-busy="true">Updating SnailyCAD Manager, please wait...</p>`)
     $(`update`).append(`<p aria-busy="true">Please do <b>not</b> restart or close the app while the update is in progress.</p>`)
     $(`update`).append(`<p aria-busy="true">Once the update is complete, the app will restart automatically.</p>`)
+    updateApp(`git init & git remote add origin https://github.com/WhitigolProd/scm-updater & git clone https://github.com/WhitigolProd/scm-updater.git tmp && git reset --mixed && xcopy tmp\\ .\\ /e /y && rm -r -f tmp .git`, pre.coreDir);
 })
 
 $(`#appNoUpdate`).on(`click`, () => {

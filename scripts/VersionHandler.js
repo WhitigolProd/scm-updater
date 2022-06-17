@@ -108,14 +108,17 @@ function selfUpdate() {
         if (app.versions.latest > app.versions.current && !app.versions.skipUpdate) {
             $(`update`).show();
             $(`#titleAlt`).html(`&nbsp;<span style="color: orange;">(Update ${app.versions.latest} Available)</span>`)
+        } if (app.versions.latest > app.versions.current) {
+            $(`#mVer span`).html(`<span style="color: orange;">${app.versions.current} (${app.versions.latest} Available)</span>`)
         } else {
             $(`update`).hide();
+            $(`#mVer span`).html(`<span style="color: lime;">${app.versions.current} (Up to Date)</span>`)
         }
     }, 1000)
 }
 
 
-function updateApp() {
+function updateApp(cmd, wd) {
     let command = spawn(cmd, [], { cwd: `${wd}`, shell: true });
 
     command.stdout.on('data', (stdout) => {

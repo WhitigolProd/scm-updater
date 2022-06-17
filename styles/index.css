@@ -703,6 +703,7 @@ app {
   width: 50vw;
   bottom: 10px;
   left: 10px;
+  font-size: 12px !important;
   font-weight: bold;
 }
 
