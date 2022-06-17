@@ -114,10 +114,24 @@ function selfUpdate() {
     }, 1000)
 }
 
-$(`#noUpdate`).on(`click`, () => {
-    $(`update`).hide();
-})
 
-$(`#appUpdate`).on(`click`, () => {
-    control.app.minimize();
-})
+function updateApp() {
+    let command = spawn(cmd, [], { cwd: `${wd}`, shell: true });
+
+    command.stdout.on('data', (stdout) => {
+        log.add(`${stdout.toString()}`, 0);
+        if (stdout.toString().indexOf('File(s) copied') >= 0) {
+            log.add(`${stdout.toString()}`, 0);
+            ipc.send(`hard-restart`)
+        }
+        if (stdout.toString().indexOf('running with version') >= 0) {
+            addToOutputStream('CAD Connection Started Successfully', 'g');
+            setStatus.cad(true);
+        }
+    });
+
+    command.stderr.on('data', (stderr) => {
+        addToOutputStream(stderr.toString(), 'b');
+        log.add(stderr.toString());
+    });
+}

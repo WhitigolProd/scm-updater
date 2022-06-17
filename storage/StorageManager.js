@@ -5,7 +5,7 @@ let links = {
 
 let app = {
     versions: {
-        current: '1.0.1', // Must be set before releasing each update.
+        current: '1.0.0', // Must be set before releasing each update.
         latest: null, // Sets Dynamically
         skipUpdate: false, // Whether to skip updating the latest version (Updates Dynamically).
     },

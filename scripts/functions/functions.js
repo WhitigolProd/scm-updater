@@ -73,7 +73,10 @@ $(`#closeLog`).on('click', () => {
 
 $(`#appUpdate`).on(`click`, () => {
     $(`#appNoUpdate`).hide();
-
+    $(`#appUpdate`).hide();
+    $(`update`).append(`<p aria-busy="true">Updating SnailyCAD Manager, please wait...</p>`)
+    $(`update`).append(`<p aria-busy="true">Please do <b>not</b> restart or close the app while the update is in progress.</p>`)
+    $(`update`).append(`<p aria-busy="true">Once the update is complete, the app will restart automatically.</p>`)
 })
 
 $(`#appNoUpdate`).on(`click`, () => {
