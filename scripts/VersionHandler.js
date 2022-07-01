@@ -1,39 +1,15 @@
-const PastebinAPI = require('pastebin-js');
-let paste = new PastebinAPI('08e056f81a7241724ced3116a2e08a3d')
-
 let ver = {
     current: null,
     latest: null,
 };
 
 function checkUpdates() {
-    //Current Version Check
-    (function () {
-        let user = require('os').userInfo().username;
-        let snailyjson = require(`${config.cadDir}/package.json`);
+    if (localStorage.length == 0) {
+        $(`load`).hide();
+        $(`.wizard`).show();
+    }
 
-        elements.versions.current.text(`${snailyjson.version}`);
-        ver.current = `${snailyjson.version}`;
-    })();
-
-    // Latest Version Check
-    (function () {
-        let ghpath = 'SnailyCAD/snaily-cadv4';
-        let api = `https://api.github.com/repos/${ghpath}/tags`;
-
-        $.get(api).done(function (data) {
-            var versions = data.sort(function (v1, v2) {
-                return semver.compare(v2.name, v1.name);
-            });
-            elements.versions.latest.text(versions[0].name);
-            ver.latest = `${versions[0].name}`;
-
-            CompareVersions();
-        });
-    })();
-
-    // Version Check every 20 seconds.
-    setInterval(() => {
+    if (localStorage.length > 0) {
         //Current Version Check
         (function () {
             let user = require('os').userInfo().username;
@@ -58,37 +34,68 @@ function checkUpdates() {
                 CompareVersions();
             });
         })();
-    }, 20000)
 
-    // Compare Versions
-    function CompareVersions() {
-        if (ver.current != ver.latest) {
-            elements.versions.current
-                .css('color', '#ffa600')
-                .append(` (Update <u>${ver.latest}</u> Available)`);
-            log.add(
-                `%cVersion Mismatch - Update Available`,
-                `background: red; font-weight: bold; padding: 2px 5px;`
-            );
-        } else {
-            elements.versions.current
-                .css('color', 'lime')
-                .append(' (Up to Date)');
-            log.add(
-                `%cVersion Match - No Updates Available`,
-                `background: green; font-weight: bold; padding: 2px 5px;`
-            );
+        // Version Check every 20 seconds.
+        setInterval(() => {
+            //Current Version Check
+            (function () {
+                let user = require('os').userInfo().username;
+                let snailyjson = require(`${config.cadDir}/package.json`);
+
+                elements.versions.current.text(`${snailyjson.version}`);
+                ver.current = `${snailyjson.version}`;
+            })();
+
+            // Latest Version Check
+            (function () {
+                let ghpath = 'SnailyCAD/snaily-cadv4';
+                let api = `https://api.github.com/repos/${ghpath}/tags`;
+
+                $.get(api).done(function (data) {
+                    var versions = data.sort(function (v1, v2) {
+                        return semver.compare(v2.name, v1.name);
+                    });
+                    elements.versions.latest.text(versions[0].name);
+                    ver.latest = `${versions[0].name}`;
+
+                    CompareVersions();
+                });
+            })();
+        }, 20000);
+
+        // Compare Versions
+        function CompareVersions() {
+            if (ver.current != ver.latest) {
+                elements.versions.current
+                    .css('color', '#ffa600')
+                    .append(` (Update <u>${ver.latest}</u> Available)`);
+                log.add(
+                    `%cVersion Mismatch - Update Available`,
+                    `background: red; font-weight: bold; padding: 2px 5px;`
+                );
+            } else {
+                elements.versions.current
+                    .css('color', 'lime')
+                    .append(' (Up to Date)');
+                log.add(
+                    `%cVersion Match - No Updates Available`,
+                    `background: green; font-weight: bold; padding: 2px 5px;`
+                );
+            }
+            HandleUpdateButton();
+
+            $(`#loadScreen`).fadeOut();
         }
-        HandleUpdateButton();
-
-        $(`#loadScreen`).fadeOut();
     }
 }
 
 // Self Updates
 function selfUpdate() {
     if (config.firstRun) {
-        exec(`git init && git remote add origin https://github.com/WhitigolProd/scm-updater.git`, { cwd: __dirname })
+        exec(
+            `git init && git remote add origin https://github.com/WhitigolProd/scm-updater.git`,
+            { cwd: __dirname }
+        );
     }
 
     setInterval(() => {
@@ -105,18 +112,27 @@ function selfUpdate() {
             });
         })();
 
-        if (app.versions.latest > app.versions.current && !app.versions.skipUpdate) {
+        if (
+            app.versions.latest > app.versions.current &&
+            !app.versions.skipUpdate
+        ) {
             $(`update`).show();
-            $(`#titleAlt`).html(`&nbsp;<span style="color: orange;">(Update ${app.versions.latest} Available)</span>`)
-        } if (app.versions.latest > app.versions.current) {
-            $(`#mVer span`).html(`<span style="color: orange;">${app.versions.current} (${app.versions.latest} Available)</span>`)
+            $(`#titleAlt`).html(
+                `&nbsp;<span style="color: orange;">(Update ${app.versions.latest} Available)</span>`
+            );
+        }
+        if (app.versions.latest > app.versions.current) {
+            $(`#mVer span`).html(
+                `<span style="color: orange;">${app.versions.current} (${app.versions.latest} Available)</span>`
+            );
         } else {
             $(`update`).hide();
-            $(`#mVer span`).html(`<span style="color: lime;">${app.versions.current} (Up to Date)</span>`)
+            $(`#mVer span`).html(
+                `<span style="color: lime;">${app.versions.current} (Up to Date)</span>`
+            );
         }
-    }, 1000)
+    }, 1000);
 }
-
 
 function updateApp(cmd, wd) {
     let command = spawn(cmd, [], { cwd: `${wd}`, shell: true });
@@ -125,7 +141,7 @@ function updateApp(cmd, wd) {
         log.add(`${stdout.toString()}`, 0);
         if (stdout.toString().indexOf('File(s) copied') >= 0) {
             log.add(`${stdout.toString()}`, 0);
-            ipc.send(`hard-restart`)
+            ipc.send(`hard-restart`);
         }
         if (stdout.toString().indexOf('running with version') >= 0) {
             addToOutputStream('CAD Connection Started Successfully', 'g');

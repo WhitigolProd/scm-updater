@@ -14,6 +14,10 @@
             rel="stylesheet"
             href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
         />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css"
+        />
         <title>SnailyCAD - Manager</title>
     </head>
     <body>
@@ -99,27 +103,17 @@
                 <step data-step="install" style="display: none">
                     <div class="inner">
                         <label for="insdir">
-                            Input Installation Directory
-                            <span
-                                >(e.g.<code>C:/Users/Username/Documents</code>)<br />The
-                                <code>snaily-cadv4</code> folder will be added
-                                upon installation.
-                            </span>
-                            <input
-                                type="text"
+                            Select Installation Directory
+                            <div
                                 id="insdir"
-                                name="insdir"
-                                placeholder="Installation Directory"
-                                required
-                            />
-                            <span style="color: rgba(255, 166, 0, 0.75)"
-                                >Do NOT include
-                                <code
-                                    style="color: var(--code-color); opacity: 1"
-                                    >snaily-cadv4</code
-                                >
-                                inside the installation directory.</span
+                                class="main-btn lnk raise"
+                                style="margin: 10px 0"
                             >
+                                <span class="material-icons-outlined"
+                                    >folder</span
+                                >
+                                <span id="insRes">Select</span>
+                            </div>
                         </label>
                     </div>
 
@@ -143,9 +137,13 @@
                                 <code id="insDirDis"></code></span
                             ><br />
                             <span style="color: orange; font-weight: bolder"
-                                >If your installation directory is NOT in proper
-                                format, your installation will fail *WITHOUT A
-                                DISPLAYED ERROR*</span
+                                >If the installation directory above is
+                                incorrect, please
+                                <a href="#" onclick="location.reload();"
+                                    >restart</a
+                                >
+                                the application, and correct the installation
+                                directory.</span
                             >
                         </div>
                     </div>
@@ -165,17 +163,21 @@
                 <step data-step="exist" style="display: none">
                     <div class="inner">
                         <label for="existdir">
-                            Input Existing Installation Directory
-                            <span
-                                >(e.g.<code>C:/Users/Username/Documents/snaily-cadv4</code>)
-                            </span>
-                            <input
-                                type="text"
+                            Select Existing SnailyCAD Installation
+                            <div
                                 id="existdir"
-                                name="existdir"
-                                placeholder="Existing Installation Directory"
-                                required
-                            />
+                                class="main-btn lnk raise"
+                                style="margin: 10px 0"
+                            >
+                                <span class="material-icons-outlined"
+                                    >folder</span
+                                >
+                                <span id="exRes">Select</span>
+                            </div>
+                            <span style="color: orange"
+                                >Installation <b>MUST</b> be
+                                <code>standalone</code></span
+                            >
                         </label>
                     </div>
 
@@ -185,6 +187,33 @@
                             <span class="material-icons-outlined"
                                 >arrow_forward</span
                             >
+                        </span>
+                    </div>
+                </step>
+
+                <step data-step="ex" style="display: none">
+                    <div class="inner">
+                        <h2>Ready to set up!</h2>
+                        <div id="insinfo">
+                            <span
+                                >Existing Directory:
+                                <code id="exDirDis"></code></span
+                            ><br />
+                            <span style="color: orange; font-weight: bolder"
+                                >If the directory above is incorrect, please
+                                <a href="#" onclick="location.reload();"
+                                    >restart</a
+                                >
+                                the application, and correct the
+                                directory.</span
+                            >
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <span class="main-btn success raise" data-btn="next">
+                            <span class="material-icons-outlined">build</span>
+                            <span>Setup</span>
                         </span>
                     </div>
                 </step>
@@ -203,14 +232,24 @@
                         <span class="material-icons-outlined">play_arrow</span>
                         <span>Start SnailyCAD</span>
                     </span>
-                    <span class="main-btn error raise" id="sc-stop">
+                    <span
+                        class="main-btn error raise"
+                        id="sc-stop"
+                        style="display: none"
+                    >
                         <span class="material-icons-outlined">stop</span>
                         <span>Stop SnailyCAD</span>
                     </span>
-                    <span class="main-btn blue raise" id="sc-update">
-                        <span class="material-icons-outlined">upgrade</span>
-                        <span>Update SnailyCAD</span>
-                    </span>
+                    <div id="updateWrapper">
+                        <span
+                            class="main-btn blue raise"
+                            id="sc-update"
+                            style="display: none"
+                        >
+                            <span class="material-icons-outlined">upgrade</span>
+                            <span>Update SnailyCAD</span>
+                        </span>
+                    </div>
                 </div>
                 <div class="row">
                     <span class="md-btn warn raise" id="sc-dir">
@@ -240,9 +279,8 @@
                 <div id="current">
                     SnailyCAD Version: <span>Not Installed</span>
                 </div>
-                <div id="mVer">
-                    Manager Version: <span>ERROR</span>
-                </div>
+                <div id="mVer">Manager Version: <span>ERROR</span></div>
+                <div id="directory">CAD Directory: <span></span></div>
             </div>
             <!-- End Version Display -->
 
@@ -270,23 +308,40 @@
                 </div>
                 <div class="header">
                     <h2>SnailyCAD Settings</h2>
-                    <span style="color: orange; margin-top: 10px"
-                        >Required Values must be updated before starting
-                        SnailyCAD!</span
+                    <span style="margin-top: 10px"
+                        >Manage your SnailyCAD Manager settings!</span
                     >
                 </div>
 
                 <div class="row">
-                    <div class="main-btn blue raise" id="editEnv">
+                    <div class="md-btn blue raise" id="editEnv">
                         <span class="material-icons-outlined">edit</span>
                         <span>Edit <code>.env</code> file</span>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="main-btn error raise" id="editEnv">
-                        <span class="material-icons-outlined">close</span>
-                        <span>Delete SnailyCAD</span>
+                    <div
+                        class="md-btn lnk raise"
+                        onclick="$(`log`).fadeIn();"
+                        id="openLog"
+                    >
+                        <span class="material-icons-outlined">terminal</span>
+                        <span>Open Output Log</span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="md-btn warn raise" id="forceShutDown">
+                        <span class="material-icons-outlined">warning</span>
+                        <span>Force Shutdown CAD</span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="md-btn error raise" onclick="core.reset();">
+                        <span class="material-icons-outlined">error</span>
+                        <span>Reset Manager (Erase All Data)</span>
                     </div>
                 </div>
 
@@ -311,7 +366,7 @@
             </load>
             <!--  -->
 
-            <update>
+            <update style="display: none">
                 <h2>Update Available</h2>
                 <p>There's an update available for SnailyCAD Manager</p>
 
@@ -338,13 +393,196 @@
                     </div>
                 </div>
             </log>
+
+            <msg style="display: none"> </msg>
+
+            <env style="display: none">
+                <p style="margin: 0">Edit <code>.env</code></p>
+                <div class="row">
+                    <label
+                        for="env1"
+                        data-tooltip="Postgress Database Password."
+                    >
+                        POSTGRES_PASSWORD
+                        <input
+                            type="text"
+                            name="env1"
+                            id="env1"
+                            placeholder="POSTRESS_PASSWORD"
+                        />
+                    </label>
+                    <label
+                        for="env2"
+                        data-tooltip="Postgress Database Username."
+                    >
+                        POSTGRES_USER
+                        <input
+                            type="text"
+                            name="env2"
+                            id="env2"
+                            placeholder="POSTGRES_USER"
+                        />
+                    </label>
+                    <label
+                        for="env3"
+                        data-tooltip="Database host. (Most likely localhost)."
+                    >
+                        DB_HOST
+                        <input
+                            type="text"
+                            name="env3"
+                            id="env3"
+                            placeholder="DB_HOST"
+                        />
+                    </label>
+                    <label for="env4" data-tooltip="The database port.">
+                        DB_PORT
+                        <input
+                            type="text"
+                            name="env4"
+                            id="env4"
+                            placeholder="DB_PORT"
+                        />
+                    </label>
+                </div>
+                <div class="row">
+                    <label for="env5" data-tooltip="The database name.">
+                        POSTGRES_DB
+                        <input
+                            type="text"
+                            name="env5"
+                            id="env5"
+                            placeholder="POSTGRES_DB"
+                        />
+                    </label>
+                    <label
+                        for="env6"
+                        data-tooltip="Random value to keep the CAD's cookies secured."
+                    >
+                        JWT_SECRET
+                        <input
+                            type="text"
+                            name="env6"
+                            id="env6"
+                            placeholder="JWT_SECRET"
+                        />
+                    </label>
+                    <label
+                        for="env7"
+                        data-tooltip="Secure string of 32 Characters"
+                    >
+                        ENCRYPTION_TOKEN
+                        <input
+                            type="text"
+                            name="env7"
+                            id="env7"
+                            placeholder="ENCRYPTION_TOKEN"
+                        />
+                    </label>
+                    <label for="env8" data-tooltip="URL/IP of the CAD Host.">
+                        CORS_ORIGIN_URL
+                        <input
+                            type="text"
+                            name="env8"
+                            id="env8"
+                            placeholder="CORS_ORIGIN_URL"
+                        />
+                    </label>
+                </div>
+                <div class="row">
+                    <label
+                        for="env9"
+                        data-tooltip="URL/IP of the CAD API Host."
+                    >
+                        NEXT_PUBLIC_PROD_ORIGIN
+                        <input
+                            type="text"
+                            name="env9"
+                            id="env9"
+                            placeholder="NEXT_PUBLIC_PROD_ORIGIN"
+                        />
+                    </label>
+                    <label
+                        for="env10"
+                        data-tooltip="CAD Domain (Only enter when using a domain!)."
+                    >
+                        DOMAIN
+                        <input
+                            type="text"
+                            name="env10"
+                            id="env10"
+                            placeholder="DOMAIN"
+                        />
+                    </label>
+                    <label for="env13" data-tooltip="SnailyCAD Client Port">
+                        PORT_CLIENT
+                        <input
+                            type="text"
+                            name="env13"
+                            id="env13"
+                            placeholder="PORT_CLIENT"
+                        />
+                    </label>
+                    <label for="env12" data-tooltip="SnailyCAD API Port">
+                        PORT_API
+                        <input
+                            type="text"
+                            name="env12"
+                            id="env12"
+                            placeholder="PORT_API"
+                        />
+                    </label>
+                </div>
+                <div class="row">
+                    <label
+                        for="env11"
+                        data-tooltip="Only Valid when Using Domain AND SSL"
+                    >
+                        SECURE_COOKIES_FOR_IFRAME
+                        <input
+                            type="checkbox"
+                            name="env11"
+                            id="env11"
+                            placeholder="SECURE_COOKIES_FOR_IFRAME"
+                        />
+                    </label>
+                    <label
+                        for="env14"
+                        data-tooltip="Report Errors to SnailyCAD Project Manager"
+                    >
+                        TELEMETRY_ENABLED
+                        <input
+                            type="checkbox"
+                            name="env14"
+                            id="env14"
+                            placeholder="TELEMETRY_ENABLED"
+                        />
+                    </label>
+                </div>
+                <div class="row">
+                    <div class="md-btn blue raise" id="saveEnv">
+                        <span class="material-icons-outlined">save</span>
+                        <span>Save Changes</span>
+                    </div>
+                </div>
+                <a
+                    href="#"
+                    class="bottom"
+                    id="openEnvFile"
+                    style="font-size: 12px"
+                    >Open File</a
+                >
+            </env>
         </app>
 
         <scripts>
+            <!-- Toast Notifications -->
+            <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+            <!-- In-App Scripts -->
+            <script src="scripts/functions/ipc.js"></script>
             <script src="./prevars.js"></script>
             <script src="scripts/script.js"></script>
             <script src="scripts/elements.js"></script>
-            <script src="scripts/functions/ipc.js"></script>
             <script src="storage/StorageManager.js"></script>
             <script src="scripts/functions/Wizard.js"></script>
             <script src="scripts/VersionHandler.js"></script>

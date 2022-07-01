@@ -1,4 +1,3 @@
-const commandExists = require('command-exists');
 const rqm = require('command-exists');
 
 //? Wizard Storage
@@ -14,61 +13,44 @@ let wizard = {
         cadDir: null,
         cadPort: null,
         cadAPI: null,
-    }
+    },
 };
 
-//? Display Requirements when PSQL is available
-$(() => {
-    function ensurePSQLisFound(timeout) {
-        var start = Date.now();
-        return new Promise(waitForFoo);
+//? Verify Requirements
+function verifyReq() {
+    if (
+        !wizard.requirements.git ||
+        !wizard.requirements.node ||
+        !wizard.requirements.yarn ||
+        !wizard.requirements.psql
+    ) {
+        $(`.requirements`).html(`
+        <h2>System Requirements Results</h2>
+        <p>GIT: <span data-status="${wizard.requirements.git}"></span></p>
+        <p>NodeJS: <span data-status="${wizard.requirements.node}"></span></p>
+        <p>Yarn: <span data-status="${wizard.requirements.yarn}"></span></p>
+        <p>PostgreSQL: <span data-status="${wizard.requirements.psql}"></span></p>
 
-        function waitForFoo(resolve, reject) {
-            if (wizard.requirements.psql) resolve(wizard.requirements.psql);
-            else if (timeout && Date.now() - start >= timeout)
-                reject(new Error('timeout'));
-            else setTimeout(waitForFoo.bind(this, resolve, reject), 30);
-        }
-    }
-    ensurePSQLisFound(1000000).then(function () {
-        if (
-            !wizard.requirements.git ||
-            !wizard.requirements.node ||
-            !wizard.requirements.yarn ||
-            !wizard.requirements.psql
-        ) {
-            $('.requirements').append(
-                `<p>GIT: <span data-status="${wizard.requirements.git}"></span></p>`
-            );
-            $('.requirements').append(
-                `<p>NodeJS: <span data-status="${wizard.requirements.node}"></span></p>`
-            );
-            $('.requirements').append(
-                `<p>Yarn: <span data-status="${wizard.requirements.yarn}"></span></p>`
-            );
-            $('.requirements').append(
-                `<p>PostgreSQL: <span data-status="${wizard.requirements.psql}"></span></p>`
-            );
-            $('.requirements').append(
-                `<span style="color: orange;">Please install the required assets, then restart the app to continue.</span>`
-            );
-            $(`.requirements`).append(
-                `<div style="margin-top: 10px;"
-                class="sm-btn blue raise"
-                onclick="window.location.reload();"
-            >
+        <span style="color: orange;">Please install the required assets, then restart the app to continue.</span>
+        
+        <div style="margin-top: 10px;" class="sm-btn lnk raise" onclick="exec('start https://cad-manager.cossys.tk/snailycad-manager/requirements')">
+                <span class="material-icons-outlined">article</span>
+                <span>Requirements Documentation</span>
+        </div>
+
+        <div style="margin-top: 10px;" class="sm-btn blue raise" onclick="window.location.reload();">
                 <span class="material-icons-outlined">refresh</span>
                 <span>Restart</span>
-            </div>`
-            )
-            $('#rqLoad').hide();
-        } else {
-            $('.requirements').hide();
-        }
-    });
-});
+        </div>
+        `);
 
-$(function requirements() {
+        $('#rqLoad').hide();
+    } else {
+        $('.requirements').hide();
+    }
+}
+
+function requirements() {
     // GIT
     rqm('git')
         .then((command) => {
@@ -103,34 +85,20 @@ $(function requirements() {
         });
 
     // PostgreSQL (Requires pgAdmin)
-    $(() => {
-        exec(
-            `where -r C:\\Users\\%username%\\AppData\\Roaming\\ pgadmin4.*`,
-            (err, stdout, stderr) => {
-                if (err) {
-                    log.add(err);
-                    wizard.requirements.psql = false;
-                    log.add(`Req: PSQL (pgAdmin) Failed`, 1);
-                }
-                if (stderr) {
-                    log.add(stderr);
-                    wizard.requirements.psql = false;
-                    log.add(`Req: PSQL (pgAdmin) Failed`, 1);
-                }
-                if (stdout) {
-                    log.add(stdout);
-                    if (stdout.indexOf('pgadmin4.') >= 0) {
-                        wizard.requirements.psql = true;
-                        log.add(`Req: PSQL (pgAdmin) Passed`, 0);
-                    } else {
-                        wizard.requirements.psql = false;
-                        log.add(`Req: PSQL (pgAdmin) Failed`, 1);
-                    }
-                }
-            }
-        );
-    });
-});
+    try {
+        if (fs.existsSync(`C:/Users/${uuid}/AppData/Roaming/pgadmin/`)) {
+            wizard.requirements.psql = true;
+            log.add(`Req: PSQL Passed`, 0);
+        } else {
+            wizard.requirements.psql = false;
+            log.add(`Req: PSQL Failed`, 1);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+
+    waitForRequirements();
+}
 
 $(() => {
     if (!config.firstRun || config.firstRun == 'true') {
@@ -157,73 +125,138 @@ $(`[data-step="start"] [data-btn="next"]`).on('click', () => {
 });
 
 //! New Install Wizard
+// Handle Retrieving Install Directory
+$(`#insdir`).on('click', () => {
+    ipc.send('selectDir', 'Select Installation Directory');
+    ipc.on('callback', (e, arg) => {
+        if (arg == '') {
+            $(`#insRes`).text(`ERROR: Canceled.`).css('color', 'red');
+        } else if (arg != ``) {
+            $(`#insRes`).text(arg).css('color', 'lime');
+            wizard.store.cadDir = `${arg}`;
+        }
+    });
+});
+
 // Set Installation Directory
 $(`[data-step="install"] [data-btn="next"]`).on('click', () => {
-    if ($(`#insdir`).val() == ``) {
-        alert(`Installation Directory can not be empty`)
-    }
-    if ($(`#insdir`).val().indexOf('/') == -1 || $(`#insdir`).val().indexOf(';') >= 0) {
-        alert(`
-        The directory input is invalid\n
-        • Make sure you have not accidentally included a semi-colon in your directory\n
-        • Make sure your directory points to a Folder inside a Drive, and not just a Drive Directory\n
-          (Can NOT be directly in the C:/ Drive!)
-        `)
-    }
-    else {
-        wizard.store.cadDir = $('#insdir').val();
-        $(`#insDirDis`).text($(`#insdir`).val())
-
-        $(`[data-step="install"`).hide();
+    if (!wizard.store.cadDir) {
+        toast.error('ERROR: Installation Directory must be specified.');
+    } else if (wizard.store.cadDir) {
+        $(`[data-step="install"]`).hide();
+        $(`#insDirDis`).text(`${wizard.store.cadDir}`);
         $(`[data-step="ins"]`).show();
     }
-})
+});
 
 // Installation
 $(`[data-step="ins"] [data-btn="next"]`).on('click', () => {
-    $(`[data-step="ins"] .inner h2`).text('Installing...')
-})
+    $(`[data-step="ins"] .inner h2`).hide();
+    $(`[data-step="ins"] [data-btn="next"]`).hide();
+    $(`[data-step="ins"] .inner #insinfo`).hide();
+    $(`[data-step="ins"] .inner`).append(
+        `<p aria-busy="true">Installation In Progress - Installing to <code>${wizard.store.cadDir}</code></p>`
+    );
+    $(`[data-step="ins"] .inner`).append(
+        `<p><b>DO NOT</b> close or restart the app while the installation is in progress.</p>`
+    );
+    $(`[data-step="ins"] .inner`).append(
+        `<p>The manager will reset once installation is complete. View the log output by pressing <code>CTRL</code> + <code>L</code>.</p>`
+    );
+    wz(
+        `git clone https://github.com/SnailyCAD/snaily-cadv4.git && cd snaily-cadv4 && yarn && copy .env.example .env`,
+        wizard.store.cadDir
+    );
+});
 
 //! Existing Install Wizard
-
-
-
-
-
-
-
-
-
-
-
-
-// Wait for PSQL Variable
-function waitFor(variable, callback) {
-    var interval = setInterval(function () {
-        if (window[variable]) {
-            clearInterval(interval);
-            callback();
+$(`#existdir`).on('click', () => {
+    ipc.send('selectDir', 'Select Existing SnailyCAD Installation');
+    ipc.on('callback', (e, arg) => {
+        if (arg == '') {
+            $(`#exRes`).text(`ERROR: Canceled.`).css('color', 'red');
+        } else if (arg != ``) {
+            $(`#exRes`).text(arg).css('color', 'lime');
+            wizard.store.cadDir = `${arg}`;
         }
-    }, 200);
-}
+    });
+});
 
+$(`[data-step="exist"] [data-btn="next"]`).on('click', () => {
+    try {
+        if (fs.existsSync(`${wizard.store.cadDir}/package.json`)) {
+            if (!wizard.store.cadDir) {
+                toast.error('ERROR: Installation Directory must be specified.');
+            } else if (wizard.store.cadDir) {
+                $(`[data-step="exist"]`).hide();
+                $(`#exDirDis`).text(`${wizard.store.cadDir}`);
+                $(`[data-step="ex"]`).show();
+            }
+        } else {
+            toast.error(
+                `Selected Directory does not contain a <code>package.json</code> file`
+            );
+        }
+    } catch (err) {
+        console.error(err);
+    }
+});
 
+$(`[data-step="ex"] [data-btn="next"]`).on('click', () => {
+    $(`[data-step="ex"] .inner`).html(`
+    <h2 aria-busy="true">Setup in Progress</h2>
+    <p><b>DO NOT</b> close or restart the app while the installation is in progress.</p>
+    <p>The manager will prompt to restart when setup is complete.</p>
+    `);
+
+    setConfig.cadDir(`${wizard.store.cadDir}`);
+    setConfig.firstRun(false);
+    localStorage.setItem(`envPending`, true);
+
+    core.restart(
+        `The setup has completed. Please restart the app to continue.`,
+        false
+    );
+});
+
+//? Wizard Functions
 function wz(cmd, wd) {
     let command = spawn(cmd, [], { cwd: `${wd}`, shell: true });
 
     command.stdout.on('data', (stdout) => {
+        log.add(stdout.toString(), 0);
         if (stdout.toString().indexOf('1 file(s) copied.') >= 0) {
-            addToOutputStream('<b>CAD Connection Closed</b>', 'b');
-            setStatus.cad(false);
-        }
-        if (stdout.toString().indexOf('running with version') >= 0) {
-            addToOutputStream('CAD Connection Started Successfully', 'g');
-            setStatus.cad(true);
+            // Set Storage
+            setConfig.cadDir(`${wizard.store.cadDir}/snaily-cadv4`);
+            setConfig.firstRun(false);
+            localStorage.setItem(`envPending`, true);
+
+            $(`msg`).html(`
+            <h2>SnailyCAD Installed!</h2>
+            <p>SnailyCAD Has been successfully installed.</p>
+            <p>To continue, you <b>must</b> restart the app.</p>
+            <div class="md-btn blue raise" onclick="location.reload();"><span class="material-icons-outlined">refresh</span><span>Restart Manager</span></div>
+            `);
+            $(`msg`).show();
         }
     });
 
     command.stderr.on('data', (stderr) => {
-        addToOutputStream(stderr.toString(), 'b');
-        log.add(stderr.toString());
+        log.add(stderr.toString(), 1);
     });
+}
+
+// Wait for requirements to be checked
+function waitForRequirements() {
+    if (
+        wizard.requirements.git != null &&
+        wizard.requirements.node != null &&
+        wizard.requirements.psql != null &&
+        wizard.requirements.yarn != null
+    ) {
+        log.add('Requirement Check Complete', 3);
+        verifyReq();
+    } else {
+        setTimeout(waitForRequirements, 250);
+    }
 }
