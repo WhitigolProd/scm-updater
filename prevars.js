@@ -25,6 +25,7 @@ let config = {
     autoStart: localStorage.getItem('autoStart'),
     openOnStartup: localStorage.getItem('openOnStartup'),
     firstRun: localStorage.getItem('firstRun'),
+    enableWebServer: localStorage.getItem('enableWebServer'),
 };
 
 if (localStorage.length > 0) {
@@ -108,6 +109,6 @@ let pre = {
 }
 
 // Keep Dependencies Up to Date
-$(()=> {
-    exec(`cd ../ && npm i`, {cwd: `${__dirname}`})
+$(() => {
+    exec(`cd ../ && npm i`, { cwd: `${__dirname}` })
 })
