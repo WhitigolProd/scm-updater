@@ -1,27 +1,27 @@
 {
-  "config": {
-    "cadDir": "C:\\Users\\Whitigol\\Desktop\\CAD\\snaily-cadv4",
-    "cadPort": null,
-    "cadAPI": null,
-    "nodeEnv": "production",
-    "color": null,
-    "autoStart": null,
-    "openOnStartup": null,
-    "firstRun": "false",
-    "enableWebServer": null
-  },
-  "wizard": {
-    "requirements": {
-      "git": null,
-      "node": null,
-      "yarn": null,
-      "psql": true,
-      "ready": null
+    "config": {
+        "cadDir": "C:\\Users\\Whitigol\\Desktop\\CAD\\snaily-cadv4",
+        "cadPort": "3000",
+        "cadAPI": "8080",
+        "nodeEnv": "production",
+        "color": null,
+        "autoStart": null,
+        "openOnStartup": null,
+        "firstRun": "false",
+        "enableWebServer": null
     },
-    "store": {
-      "cadDir": null,
-      "cadPort": null,
-      "cadAPI": null
+    "wizard": {
+        "requirements": {
+            "git": null,
+            "node": null,
+            "yarn": null,
+            "psql": true,
+            "ready": null
+        },
+        "store": {
+            "cadDir": null,
+            "cadPort": null,
+            "cadAPI": null
+        }
     }
-  }
 }
